@@ -6,7 +6,7 @@ Middle school **life sciences, math, and ELA** as story-driven browser games—m
 
 **Entry points**
 
-- `index.html` — quick entry (redirects to Lesson 1); **`hub.html`** — life sciences course hub
+- `index.html` — quick entry (redirects to **`nexus.html`**); **`hub.html`** — life sciences course hub
 - `nexus.html` — meta-hub for all three games (life sciences · math · ELA)
 - **Life sciences track** (Gene Code) lives under `hub.html` and the `lesson-*.html` chapters
 
