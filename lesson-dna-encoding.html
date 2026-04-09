@@ -33,7 +33,7 @@
       --c: #60a5fa;
       --radius: 12px;
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-      --hud-h: 72px;
+      --hud-h: 100px;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -123,10 +123,21 @@
       min-height: 1.4em;
     }
 
-    .hud-xp {
+    .hud-xp-stack {
       flex: 1;
-      min-width: 140px;
-      max-width: 220px;
+      min-width: 160px;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .hud-xp {
+      width: 100%;
+    }
+
+    .hud-xp.global .hud-xp-fill {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
     }
 
     .hud-xp-label {
@@ -1197,13 +1208,24 @@
       <span class="hud-codename" id="hud-codename" title=""></span>
     </div>
     <a href="hub.html" class="hud-home-link">← All lessons</a>
-    <div class="hud-xp">
-      <div class="hud-xp-label">
-        <span>Explorer XP</span>
-        <span id="hud-xp-text">0 / 500</span>
+    <div class="hud-xp-stack">
+      <div class="hud-xp global">
+        <div class="hud-xp-label">
+          <span>Career XP</span>
+          <span id="hud-global-xp-text">0 / 2400</span>
+        </div>
+        <div class="hud-xp-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2400" id="hud-global-xp-bar-wrap">
+          <div class="hud-xp-fill" id="hud-global-xp-fill"></div>
+        </div>
       </div>
-      <div class="hud-xp-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="500" id="hud-xp-bar-wrap">
-        <div class="hud-xp-fill" id="hud-xp-fill"></div>
+      <div class="hud-xp chapter">
+        <div class="hud-xp-label">
+          <span>This lesson</span>
+          <span id="hud-chapter-xp-text">0 / 600</span>
+        </div>
+        <div class="hud-xp-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="600" id="hud-chapter-xp-bar-wrap">
+          <div class="hud-xp-fill" id="hud-chapter-xp-fill"></div>
+        </div>
       </div>
     </div>
     <div class="hud-quiz" id="hud-quiz-wrap" title="Checkpoint quiz progress">
@@ -1630,30 +1652,22 @@
   </main>
 
   <footer class="wrap">
-    <p>DNA: Code of Life — lesson, flashcards, 3D model, missions &amp; quiz in one scroll.</p>
+    <p>DNA: Code of Life — lesson, flashcards, 3D model, missions &amp; quiz.</p>
   </footer>
 
+  <script src="gene-code-game.js"></script>
+  <script src="js/nexus-academy.js"></script>
   <script>
     (function () {
-      var STORAGE = "og_genome_v1";
-      var XP_MAX = 500;
-      var XP_PER = 100;
-
-      var state = {
-        name: "Explorer",
-        xp: 0,
-        missions: [false, false, false, false, false],
-        mute: false
-      };
-
-      function displayName() {
-        var n = state.name && String(state.name).trim() ? String(state.name).trim() : "Explorer";
-        if (n.length > 22) n = n.slice(0, 22) + "…";
-        return n;
+      var G = window.GeneCodeGame;
+      var LESSON = "dna";
+      if (window.NexusAcademy && NexusAcademy.applyDisplayNameFromManifest) {
+        NexusAcademy.applyDisplayNameFromManifest();
       }
+      var prevLessonComplete = G.lessonComplete(LESSON);
 
       function personalize(text) {
-        return String(text).replace(/\{name\}/g, displayName());
+        return G.personalize(text);
       }
 
       function refreshPersonalGreeting() {
@@ -1662,16 +1676,25 @@
         el.textContent = personalize("{name}, your lab clearance is live. Let’s decode some DNA.");
       }
 
-      var quizScore = 0;
-
       function updateQuizHUD() {
-        var el = document.getElementById("hud-quiz-text");
-        var fill = document.getElementById("hud-quiz-fill");
-        var wrap = document.getElementById("hud-quiz-bar-wrap");
-        if (!el || !fill) return;
-        el.textContent = quizScore + " / 4";
-        fill.style.width = Math.min(100, (quizScore / 4) * 100) + "%";
-        if (wrap) wrap.setAttribute("aria-valuenow", String(quizScore));
+        G.updateQuizHUDForLesson(LESSON);
+      }
+
+      function restoreQuizFromState() {
+        for (var i = 0; i < 4; i++) {
+          if (!G.isQuizDone(LESSON, i)) continue;
+          var qEl = document.getElementById("quiz-q" + (i + 1));
+          if (!qEl) continue;
+          qEl.setAttribute("data-done", "1");
+          var correctIdx = parseInt(qEl.getAttribute("data-correct"), 10);
+          var all = qEl.querySelectorAll(".quiz-options button");
+          all.forEach(function (b) {
+            b.disabled = true;
+          });
+          if (all[correctIdx]) all[correctIdx].classList.add("correct-pick");
+          var ex = qEl.querySelector(".quiz-explain");
+          if (ex) ex.classList.add("open");
+        }
       }
 
       function setupFlashcards() {
@@ -1733,8 +1756,19 @@
           qEl.setAttribute("data-done", "1");
           if (ok) {
             btn.classList.add("correct-pick");
-            quizScore++;
+            var qIdx =
+              qEl.id === "quiz-q1"
+                ? 0
+                : qEl.id === "quiz-q2"
+                  ? 1
+                  : qEl.id === "quiz-q3"
+                    ? 2
+                    : 3;
+            G.completeQuizQuestion(LESSON, qIdx);
             updateQuizHUD();
+            G.updateGlobalHUD();
+            G.updateChapterHUD(LESSON);
+            maybeVictory();
             var hudT = document.getElementById("hud-quiz-text");
             if (hudT) {
               hudT.classList.add("pop");
@@ -1754,62 +1788,26 @@
         });
       }
 
-      function load() {
-        try {
-          var raw = localStorage.getItem(STORAGE);
-          if (raw) {
-            var o = JSON.parse(raw);
-            if (o.name) state.name = o.name;
-            if (typeof o.xp === "number") state.xp = o.xp;
-            if (Array.isArray(o.missions) && o.missions.length === 5) state.missions = o.missions;
-            if (typeof o.mute === "boolean") state.mute = o.mute;
-          }
-        } catch (e) {}
-      }
-
-      function save() {
-        try {
-          localStorage.setItem(STORAGE, JSON.stringify({
-            name: state.name,
-            xp: state.xp,
-            missions: state.missions,
-            mute: state.mute
-          }));
-        } catch (e) {}
-      }
-
       function beep(ok) {
-        if (state.mute) return;
-        try {
-          var ctx = new (window.AudioContext || window.webkitAudioContext)();
-          var o = ctx.createOscillator();
-          var g = ctx.createGain();
-          o.connect(g);
-          g.connect(ctx.destination);
-          o.frequency.value = ok ? 880 : 220;
-          o.type = "sine";
-          g.gain.value = 0.08;
-          o.start();
-          o.stop(ctx.currentTime + 0.08);
-        } catch (e) {}
+        G.beep(ok);
+      }
+
+      function displayName() {
+        return G.displayName();
       }
 
       function updateHUD() {
-        var fill = document.getElementById("hud-xp-fill");
-        var text = document.getElementById("hud-xp-text");
-        var pct = Math.min(100, (state.xp / XP_MAX) * 100);
-        fill.style.width = pct + "%";
-        text.textContent = state.xp + " / " + XP_MAX;
-        document.getElementById("hud-xp-bar-wrap").setAttribute("aria-valuenow", String(state.xp));
+        G.refreshLessonHUD(LESSON);
+        var missions = G.state.lessons[LESSON].missions;
 
         var hud = document.getElementById("hud-missions");
         hud.innerHTML = "";
         for (var i = 0; i < 5; i++) {
           var b = document.createElement("button");
           b.type = "button";
-          b.className = "mission-dot" + (state.missions[i] ? " done" : "");
+          b.className = "mission-dot" + (missions[i] ? " done" : "");
           b.textContent = i + 1;
-          b.setAttribute("aria-label", "Mission " + (i + 1) + (state.missions[i] ? " complete" : ""));
+          b.setAttribute("aria-label", "Mission " + (i + 1) + (missions[i] ? " complete" : ""));
           (function (idx) {
             b.addEventListener("click", function () {
               var el = document.querySelector('[data-mission="' + (idx + 1) + '"]');
@@ -1822,27 +1820,33 @@
         for (var m = 1; m <= 5; m++) {
           var tag = document.getElementById("tag-m" + m);
           if (tag) {
-            tag.classList.toggle("done", state.missions[m - 1]);
+            tag.classList.toggle("done", missions[m - 1]);
           }
         }
 
-        var cn = document.getElementById("hud-codename");
-        if (cn) {
-          cn.textContent = "Codename: " + displayName();
-          cn.setAttribute("title", displayName());
-        }
         refreshPersonalGreeting();
       }
 
-      function addXP(amount, missionIndex) {
-        if (missionIndex >= 0 && state.missions[missionIndex]) return;
-        state.xp = Math.min(XP_MAX, state.xp + amount);
-        if (missionIndex >= 0) state.missions[missionIndex] = true;
-        save();
-        updateHUD();
-        if (state.missions.every(function (x) { return x; })) {
-          setTimeout(showVictory, 600);
+      function maybeVictory() {
+        var was = prevLessonComplete;
+        prevLessonComplete = G.lessonComplete(LESSON);
+        if (G.tryGrandFinale()) {
+          setTimeout(function () {
+            showVictory(true);
+          }, 400);
+          return;
         }
+        if (prevLessonComplete && !was) {
+          setTimeout(function () {
+            showVictory(false);
+          }, 400);
+        }
+      }
+
+      function addXP(missionIndex) {
+        G.completeMission(LESSON, missionIndex);
+        updateHUD();
+        maybeVictory();
       }
 
       function confetti() {
@@ -1861,19 +1865,34 @@
         setTimeout(function () { root.innerHTML = ""; }, 3500);
       }
 
-      function showVictory() {
+      function showVictory(isGrand) {
         var ov = document.getElementById("victory");
         var msg = document.getElementById("victory-msg");
-        msg.textContent = personalize(
-          "{name}, you decoded the flow from DNA to proteins. The lab is proud."
-        );
+        var title = document.getElementById("victory-title");
         var badges = document.getElementById("victory-badges");
-        badges.innerHTML =
-          '<span class="mini-badge">Helix Scout</span>' +
-          '<span class="mini-badge">Base Master</span>' +
-          '<span class="mini-badge">Pair Pro</span>' +
-          '<span class="mini-badge">Codon Decoder</span>' +
-          '<span class="mini-badge">Protein Pathfinder</span>';
+        if (isGrand) {
+          title.textContent = "Gene Code Explorer complete";
+          msg.textContent = personalize(
+            "{name}, you cleared all four lessons. Maximum career XP—legend status."
+          );
+          badges.innerHTML =
+            '<span class="mini-badge">Helix Scout</span>' +
+            '<span class="mini-badge">Inheritance</span>' +
+            '<span class="mini-badge">Cell Atlas</span>' +
+            '<span class="mini-badge">Deep Time</span>' +
+            '<span class="mini-badge">Master Explorer</span>';
+        } else {
+          title.textContent = "Chapter complete";
+          msg.textContent = personalize(
+            "{name}, you decoded the flow from DNA to proteins. The lab is proud."
+          );
+          badges.innerHTML =
+            '<span class="mini-badge">Helix Scout</span>' +
+            '<span class="mini-badge">Base Master</span>' +
+            '<span class="mini-badge">Pair Pro</span>' +
+            '<span class="mini-badge">Codon Decoder</span>' +
+            '<span class="mini-badge">Protein Pathfinder</span>';
+        }
         ov.classList.add("active");
         ov.setAttribute("aria-hidden", "false");
         confetti();
@@ -1892,7 +1911,7 @@
 
       function openCodename() {
         modal.classList.add("active");
-        input.value = state.name === "Explorer" ? "" : state.name;
+        input.value = G.state.name === "Explorer" ? "" : G.state.name;
         setTimeout(function () { input.focus(); }, 100);
       }
 
@@ -1902,8 +1921,12 @@
 
       document.getElementById("codename-start").addEventListener("click", function () {
         var v = input.value.trim();
-        if (v) state.name = v.slice(0, 24);
-        save();
+        if (v) {
+          G.setName(v.slice(0, 24));
+          if (window.NexusAcademy && NexusAcademy.setDisplayName) {
+            NexusAcademy.setDisplayName(v.slice(0, 24));
+          }
+        }
         closeCodename();
         updateHUD();
       });
@@ -1913,11 +1936,10 @@
       /* Mute */
       var btnMute = document.getElementById("btn-mute");
       function syncMute() {
-        btnMute.textContent = state.mute ? "Sound off" : "Sound on";
+        btnMute.textContent = G.state.mute ? "Sound off" : "Sound on";
       }
       btnMute.addEventListener("click", function () {
-        state.mute = !state.mute;
-        save();
+        G.setMute(!G.state.mute);
         syncMute();
       });
 
@@ -1960,7 +1982,7 @@
       /* Challenge 1 */
       function setupChallenge1() {
         var box = document.getElementById("challenge-1");
-        if (state.missions[0]) {
+        if (G.state.lessons[LESSON].missions[0]) {
           box.classList.add("complete");
           box.querySelectorAll(".choice-btn").forEach(function (b) { b.disabled = true; });
           return;
@@ -1980,7 +2002,7 @@
               fb.textContent = personalize(
                 "Yes, {name}! The backbone is sugar + phosphate; bases form the rungs."
               );
-              addXP(XP_PER, 0);
+              addXP(0);
               box.classList.add("complete");
               beep(true);
             } else {
@@ -2014,7 +2036,7 @@
         var prog = document.getElementById("tap-progress");
         var fb = document.getElementById("fb-2");
 
-        if (state.missions[1]) {
+        if (G.state.lessons[LESSON].missions[1]) {
           box.classList.add("complete");
           promptEl.textContent = personalize("{name}, you already cleared this mission.");
           prog.textContent = "★ ★ ★";
@@ -2031,7 +2053,7 @@
 
         box.querySelectorAll(".tap-base").forEach(function (btn) {
           btn.addEventListener("click", function () {
-            if (state.missions[1]) return;
+            if (G.state.lessons[LESSON].missions[1]) return;
             var L = btn.getAttribute("data-letter");
             if (L === tapTargets[tapRound].letter) {
               beep(true);
@@ -2042,7 +2064,7 @@
                 fb.textContent = personalize(
                   "{name}, perfect reflexes—you’ve got the alphabet cold."
                 );
-                addXP(XP_PER, 1);
+                addXP(1);
                 box.classList.add("complete");
                 box.querySelectorAll(".tap-base").forEach(function (b) { b.disabled = true; });
                 promptEl.textContent = personalize("Mission cleared, {name}!");
@@ -2080,7 +2102,7 @@
         var letters = ["A", "T", "G", "C"];
         pairLeft = letters[Math.floor(Math.random() * 4)];
 
-        if (state.missions[2]) {
+        if (G.state.lessons[LESSON].missions[2]) {
           box.classList.add("complete");
           promptEl.innerHTML = "You already cleared partner match.";
           container.innerHTML = "";
@@ -2108,7 +2130,7 @@
               fb.textContent = personalize(
                 "{name}, locked in—complementary pairing for the win."
               );
-              addXP(XP_PER, 2);
+              addXP(2);
               box.classList.add("complete");
               beep(true);
             } else {
@@ -2127,7 +2149,7 @@
       /* Challenge 4 */
       function setupChallenge4() {
         var box = document.getElementById("challenge-4");
-        if (state.missions[3]) {
+        if (G.state.lessons[LESSON].missions[3]) {
           box.classList.add("complete");
           box.querySelectorAll(".choice-btn").forEach(function (b) { b.disabled = true; });
           return;
@@ -2147,7 +2169,7 @@
               fb.textContent = personalize(
                 "Exactly, {name}—codons are three-base words for amino acids (or control signals)."
               );
-              addXP(XP_PER, 3);
+              addXP(3);
               box.classList.add("complete");
               beep(true);
             } else {
@@ -2180,7 +2202,7 @@
         var box = document.getElementById("challenge-5");
         var fb = document.getElementById("fb-5");
 
-        if (state.missions[4]) {
+        if (G.state.lessons[LESSON].missions[4]) {
           box.classList.add("complete");
           list.innerHTML = "";
           orderSteps.forEach(function (s, i) {
@@ -2219,7 +2241,7 @@
           li.addEventListener("dragend", function () { dragEl = null; });
 
           li.addEventListener("click", function (e) {
-            if (state.missions[4]) return;
+            if (G.state.lessons[LESSON].missions[4]) return;
             if (e.target.closest("button")) return;
             if (!selectedOrder) {
               selectedOrder = li;
@@ -2258,7 +2280,7 @@
             fb.textContent = personalize(
               "{name}, you nailed it—that’s the real pipeline from gene to cell work."
             );
-            addXP(XP_PER, 4);
+            addXP(4);
             box.classList.add("complete");
             beep(true);
             list.querySelectorAll(".order-item").forEach(function (li) { li.draggable = false; });
@@ -2271,11 +2293,13 @@
       }
 
       /* Init */
-      load();
       syncMute();
       updateHUD();
+      restoreQuizFromState();
+      prevLessonComplete = G.lessonComplete(LESSON);
 
-      var firstVisit = !localStorage.getItem(STORAGE);
+      var firstVisit =
+        !localStorage.getItem("geneCodeExplorer_v2") && !localStorage.getItem("og_genome_v1");
       if (firstVisit) {
         openCodename();
       }
@@ -2291,7 +2315,7 @@
       setupCodonReadout();
       setupQuiz();
 
-      if (state.missions.every(function (x) { return x; })) {
+      if (G.state.lessons[LESSON].missions.every(function (x) { return x; })) {
         document.getElementById("challenge-1").classList.add("complete");
         document.getElementById("challenge-5").classList.add("complete");
       }

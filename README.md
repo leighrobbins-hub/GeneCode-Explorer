@@ -1,18 +1,19 @@
-# Gene Code Explorer
+# Gene Code Explorer + Nexus Academy
 
-Middle-school genetics lessons — dark theme, DM Sans.
+Static learning games (life science, math, ELA) and the Nexus meta-hub.
 
-## Site entry (GitHub Pages)
+**Live site:** [https://leighrobbins-hub.github.io/GeneCode-Explorer/](https://leighrobbins-hub.github.io/GeneCode-Explorer/)
 
-**https://leighrobbins-hub.github.io/GeneCode-Explorer/**
+**Entry points**
 
-The **home URL redirects** to **`lesson-dna-encoding.html`** — the full **Operation Genome** experience (codename, XP bar, five missions, 3D DNA, flashcards, checkpoint quiz).
+- `index.html` — quick entry (redirects to Lesson 1); use **`hub.html`** for the full course picker
+- `nexus.html` — Nexus Academy (all three games)
+- `hub.html` — Gene Code Explorer chapters
 
-- **`hub.html`** — browse all four lessons  
-- **`lesson-dna-encoding.html`** — Lesson 1 (full interactive / gamified)  
-- **`lesson-heredity.html`**, **`lesson-cells-chromosomes.html`**, **`lesson-evolution-variation.html`** — Lessons 2–4 (flashcards + quizzes)  
-- **`dna-genetics-lesson.html`** — redirects to Lesson 1  
+**Regenerate math/ELA unit HTML** (after editing `scripts/generate-realm-units.py`):
 
-## Deploy
+```bash
+python3 scripts/generate-realm-units.py
+```
 
-Push to `main`; the **Deploy to GitHub Pages** workflow publishes the site. Lesson 1’s 3D view needs `https://` (not `file://`).
+**Deploy:** GitHub Actions publishes this repo to GitHub Pages on every push to `main` (see `.github/workflows/deploy-pages.yml`).
