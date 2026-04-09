@@ -1,160 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gene Code Explorer — Choose a lesson</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="refresh" content="0; url=lesson-dna-encoding.html" />
+  <title>Gene Code Explorer — Operation Genome</title>
+  <link rel="canonical" href="lesson-dna-encoding.html" />
   <style>
-    :root {
-      --bg: #050809;
-      --text: #e8eaed;
-      --muted: #9aa0a6;
-      --accent: #5eead4;
-      --card: #0c1012;
-      --radius: 14px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "DM Sans", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -15%, rgba(94, 234, 212, 0.09), transparent),
-        radial-gradient(circle at 85% 70%, rgba(96, 165, 250, 0.05), transparent 45%);
-      pointer-events: none;
-      z-index: -1;
-    }
-    .wrap {
-      width: min(56rem, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 2.5rem 0 4rem;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-    .logo {
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-    }
-    h1 {
-      font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin: 0 0 0.75rem;
-    }
-    .sub {
-      color: var(--muted);
-      max-width: 40ch;
-      margin: 0 auto;
-      font-size: 1.05rem;
-    }
-    .grid {
-      display: grid;
-      gap: 1.25rem;
-    }
-    @media (min-width: 700px) {
-      .grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    a.card {
-      display: block;
-      padding: 1.5rem 1.6rem;
-      border-radius: var(--radius);
-      background: var(--card);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.2s ease, border-color 0.2s, box-shadow 0.2s;
-    }
-    a.card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(94, 234, 212, 0.35);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-    }
-    .card-num {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-    }
-    .card h2 {
-      margin: 0 0 0.5rem;
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-    .card p {
-      margin: 0;
-      font-size: 0.92rem;
-      color: var(--muted);
-    }
-    .card .go {
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    footer {
-      text-align: center;
-      margin-top: 3rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-    footer a { color: var(--accent); }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: #050809; color: #9aa0a6; text-align: center; padding: 3rem 1rem; line-height: 1.6; }
+    a { color: #5eead4; }
+    strong { color: #e8eaed; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <p class="logo">Gene Code Explorer</p>
-      <h1>Pick your lesson</h1>
-      <p class="sub">Four middle-school tracks on heredity, cells, evolution, and how DNA encodes life’s instructions. Same dark theme—open any lesson to explore.</p>
-    </header>
-    <div class="grid">
-      <a class="card" href="lesson-dna-encoding.html">
-        <div class="card-num">Lesson 1</div>
-        <h2>DNA &amp; genetic information</h2>
-        <p>Double helix, A–T / G–C pairing, codons, proteins, flashcards, 3D model, missions &amp; quiz.</p>
-        <div class="go">Open lesson →</div>
-      </a>
-      <a class="card" href="lesson-heredity.html">
-        <div class="card-num">Lesson 2</div>
-        <h2>Heredity &amp; traits</h2>
-        <p>Genes, alleles, dominant &amp; recessive traits, Punnett squares, and why families look alike.</p>
-        <div class="go">Open lesson →</div>
-      </a>
-      <a class="card" href="lesson-cells-chromosomes.html">
-        <div class="card-num">Lesson 3</div>
-        <h2>Cells, chromosomes &amp; division</h2>
-        <p>Where DNA lives, chromosome pairs, mitosis vs meiosis, and why egg &amp; sperm carry half the DNA.</p>
-        <div class="go">Open lesson →</div>
-      </a>
-      <a class="card" href="lesson-evolution-variation.html">
-        <div class="card-num">Lesson 4</div>
-        <h2>Evolution &amp; genetic variation</h2>
-        <p>Variation in populations, natural selection, adaptation, and how DNA change connects to diversity of life.</p>
-        <div class="go">Open lesson →</div>
-      </a>
-    </div>
-    <footer>
-      <p>Also available as <a href="dna-genetics-lesson.html">dna-genetics-lesson.html</a> (same as Lesson 1).</p>
-    </footer>
-  </div>
+  <p>Loading <strong>Operation Genome</strong> (full interactive lesson)…</p>
+  <p><a href="lesson-dna-encoding.html">Open Lesson 1 — DNA &amp; genetic information</a></p>
+  <p style="margin-top: 2rem; font-size: 0.92rem;"><a href="hub.html">Browse all four lessons</a></p>
 </body>
 </html>

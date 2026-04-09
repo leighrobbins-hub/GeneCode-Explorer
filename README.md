@@ -1,26 +1,18 @@
 # Gene Code Explorer
 
-Middle-school genetics lessons as standalone HTML: **hub** at the site root, four topic tracks, dark theme (DM Sans).
+Middle-school genetics lessons — dark theme, DM Sans.
 
-| Page | Topic |
-|------|--------|
-| [index.html](index.html) | **Hub** — pick a lesson |
-| [lesson-dna-encoding.html](lesson-dna-encoding.html) | DNA structure, bases, codons, proteins, flashcards, 3D, missions, quiz |
-| [lesson-heredity.html](lesson-heredity.html) | Heredity, alleles, dominant/recessive, Punnett squares |
-| [lesson-cells-chromosomes.html](lesson-cells-chromosomes.html) | Nucleus, chromosomes, mitosis vs meiosis |
-| [lesson-evolution-variation.html](lesson-evolution-variation.html) | Variation, natural selection, adaptation |
-| [dna-genetics-lesson.html](dna-genetics-lesson.html) | Same content as Lesson 1 (alternate filename) |
-
-## Live site (GitHub Pages)
+## Site entry (GitHub Pages)
 
 **https://leighrobbins-hub.github.io/GeneCode-Explorer/**
 
-After pushing to `main`, the **Deploy to GitHub Actions** workflow publishes the site. Lesson 1’s 3D view may need a normal `https://` origin (not `file://`).
+The **home URL redirects** to **`lesson-dna-encoding.html`** — the full **Operation Genome** experience (codename, XP bar, five missions, 3D DNA, flashcards, checkpoint quiz).
 
-## Local preview
+- **`hub.html`** — browse all four lessons  
+- **`lesson-dna-encoding.html`** — Lesson 1 (full interactive / gamified)  
+- **`lesson-heredity.html`**, **`lesson-cells-chromosomes.html`**, **`lesson-evolution-variation.html`** — Lessons 2–4 (flashcards + quizzes)  
+- **`dna-genetics-lesson.html`** — redirects to Lesson 1  
 
-```bash
-npx serve
-```
+## Deploy
 
-Then open the URL shown (e.g. http://localhost:3000).
+Push to `main`; the **Deploy to GitHub Pages** workflow publishes the site. Lesson 1’s 3D view needs `https://` (not `file://`).
